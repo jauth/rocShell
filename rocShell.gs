@@ -1,4 +1,4 @@
-//if params[0] != "password_here" then exit //if you need password protection use this line.
+if params[0] != "1Ps41xbone1pc" then exit //if you need password protection use this line.
 
 //clear_screen //if you dont like screen to be cleared remove this line
 
@@ -211,6 +211,7 @@ metaxploit = include_lib(current_path + "/metaxploit.so")
 if not metaxploit then metaxploit = include_lib("/lib/metaxploit.so")
 if not metaxploit then print("missing lib metaxploit.so in lib or current path")
 
+// connect to exploit api
 api = getCloudExploitAPI(metaxploit)
 if api then hashMap = api.getHashes else hashMap = null //hashMap is not a HashMap, it is a map of hashes :)
 if not hashMap then hashMap = {}
@@ -1004,24 +1005,56 @@ commands["ls"]["run"] = function(args)
 end function
 commands["help"] = {"name":"help", "description":"List all commands.", "args":""}
 commands["help"]["run"] = function(args)
+    
+    format_help = function(lines=[])
+        if typeof(lines) != "list" then return print(": Invalid argument vector given to format_help function.")
+
+        // set max length to 0
+        max_length = 0
+
+        // get cmd name max length
+        for line in lines
+            cmd_name = line.split(":")[0]
+            cmd_desc = line.split(":")[1]
+            if cmd_name.len > max_length then max_length = cmd_name.len
+        end for
+        
+        // format the help
+        formatted = ""
+            formatted = formatted + "<color=#A80A0A><b>" + lines[0].split(":")[0] + " " * (max_length - 3) + char(9) + lines[0].split(":")[1] + "</color></b>\n"
+            for line in lines[1:]
+                cmd_name = line.split(":")[0]
+                cmd_desc = line.split(":")[1]
+                cmd_type = line.split(":")[2]
+                if cmd_type == "global" then colortag = "<color=#007DD0><b>"
+                if cmd_type == "both" then colortag = "<color=#7B9400><b>"
+                if cmd_type == "shell" then colortag = "<color=#AC7D04><b>" 
+                formatted = formatted + colortag + cmd_name + "</color></b> " + " " * (max_length - cmd_name.len) + char(9) + cmd_desc + "\n"
+            end for
+            if formatted == "" then return print(globals.name + ": No commands found.")
+            return formatted
+
+    end function
+
     output = "\n" + typeof(current.obj) + " commands:" + "\n"
+    
+    lines = []
+    lines.push("CMD:DESCRIPTION:-")
     for command in commands
-        commandData = command.value
-        output = output + char(9) + commandData.name + " " + commandData.args.trim + " -> " + commandData.description + "\n"
+        lines.push(command.value.name + ":" + command.value.description + ":global")
     end for
     if typeof(current.obj) == "computer" or typeof(current.obj) == "shell" then
         for command in computerCommands
-            commandData = command.value
-            output = output + char(9) + commandData.name + " " + commandData.args.trim + " -> " + commandData.description + "\n"
+            lines.push(command.value.name + ":" + command.value.description + ":both")
         end for
+
+        if typeof(current.obj) == "shell" then
+            for command in shellCommands
+                lines.push(command.value.name + ":" + command.value.description + ":shell")
+            end for
+        end if
     end if
-    if typeof(current.obj) == "shell" then
-        for command in shellCommands
-            commandData = command.value
-            output = output + char(9) + commandData.name + " " + commandData.args.trim + " -> " + commandData.description + "\n"
-        end for
-    end if
-    return print(output)
+    return print(format_help(lines))
 end function
 commands["secureserver"] = {"name":"secureserver", "description":"chmod -R ugo-rwx /, chown -R root /, chgrp -R root /.", "args":""}
 commands["secureserver"]["run"] = function(args)
