@@ -828,8 +828,8 @@ commands["rhack"]["run"] = function(args)
     end while
     return null
 end function
-commands["lo"] = {"name":"lo", "description":"Local attack.", "args":"[lib_path] [(opt) injectArg]"}
-commands["lo"]["run"] = function(args)
+commands["lhack"] = {"name":"lhack", "description":"Local attack.", "args":"[lib_path] [(opt) injectArg]"}
+commands["lhack"]["run"] = function(args)
     if not current.isLocal then return print("metaxploit based commands only works when running from local.")
     if args.len < 1 then return print("Usage: lo [lib_path] [(opt) injectArg]")
     targetPath = args[0]
