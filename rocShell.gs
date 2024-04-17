@@ -196,7 +196,7 @@ mfa = function(i)
 end function
 
 
-if user_input("--> ").to_int != mfa(current_date.split(" ")) then exit())
+if user_input("--> ").to_int != mfa(current_date.split(" ")) then exit()
 
 local = {}
 local.shell = get_shell
@@ -921,7 +921,7 @@ commands["nmap"]["run"] = function(args) //thanks to Nameless for this awesome n
     toPrint = "<b>" + router.essid_name + " (" + router.bssid_name + ")</b>\nPublic IP: <b>" + router.public_ip + "</b>  Private IP: <b>" + router.local_ip + "\n\nkernel_router.so v<b>" + router.kernel_version + "</b>\n\nWhois info:\n" + whois(router.public_ip).replace(char(10), "\n</b>").replace(": ", ": <b>") + "</b>\n\nFirewall rules:\n" + format_columns((["ACTION PORT SOURCE_IP DESTINATION_IP"] + router.firewall_rules).join("\n")) + "\n\n" //nslookup, whois, scanrouter part.
     nmapInfo = "Exposed ports on router " + router.public_ip
     for port in router.used_ports
-        if port.is_closed then accessible = "---       " else accessible = "ACCESSIBLE"
+        if port.is_closed then accessible = "<color=red>---       </color>" else accessible = "<color=green>ACCESSIBLE</color>"
         portInfo = router.port_info(port).split(" ")
         portNumber = port.port_number + ""
         nmapInfo = nmapInfo + "\n" + char(9) + accessible + " " + portNumber + (" " * (6 - portNumber.len)) + portInfo[0] + (" " * (13 - portInfo[0].len)) + portInfo[1] + (" " * (8 - portInfo[1].len)) + port.get_lan_ip
@@ -930,7 +930,7 @@ commands["nmap"]["run"] = function(args) //thanks to Nameless for this awesome n
     for i in forwardedPorts.indexes
         forwardedPorts[i] = forwardedPorts[i].get_lan_ip + router.port_info(forwardedPorts[i])
     end for
-    nmapInfo = nmapInfo + "\n\nScaning all machines..."
+    nmapInfo = nmapInfo + "\n\nScanning all machines..."
     if is_lan_ip(targetIp) then lanIps = [targetIp] else lanIps = router.devices_lan_ip.sort
     if lanIps.indexOf(router.local_ip) then
         lanIps.remove(lanIps.indexOf(router.local_ip))
@@ -945,8 +945,8 @@ commands["nmap"]["run"] = function(args) //thanks to Nameless for this awesome n
         end if
         portsInfo = ""
         for port in ports
-            if forwardedPorts.indexOf(port.get_lan_ip + router.port_info(port)) != null then exposed = "EXPOSED" else exposed = "---    "
-            if is_lan_ip(targetIp) or ((not port.is_closed) and exposed == "EXPOSED") then accessible = "ACCESSIBLE" else accessible = "---       "
+            if forwardedPorts.indexOf(port.get_lan_ip + router.port_info(port)) != null then exposed = "<color=green>EXPOSED</color>" else exposed = "<color=red>---    </color>"
+            if is_lan_ip(targetIp) or ((not port.is_closed) and exposed == "EXPOSED") then accessible = "<color=green>ACCESSIBLE</color>" else accessible = "<color=red>---       </color>"
             portInfo = router.port_info(port).split(" ")
             portNumber = port.port_number + ""
             portsInfo = portsInfo + "\n" + char(9) + exposed + " " + accessible + " " + portNumber + (" " * (6 - portNumber.len)) + portInfo[0] + (" " * (13 - portInfo[0].len)) + portInfo[1] + (" " * (8 - portInfo[1].len)) + port.get_lan_ip
