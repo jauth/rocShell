@@ -1,0 +1,22 @@
+mfa = function()
+	i = current_date.split(" ")
+	d = i[0].split("/")[0].to_int
+	y = i[0].split("/")[2].to_int
+	h = i[2].split(":")[0].to_int
+	m = i[2].split(":")[1].to_int
+	if m >= 0 and m <= 10 then mx = 1
+	if m >= 11 and m <= 20 then mx = 2
+	if m >= 21 and m <= 30 then mx = 3
+	if m >= 31 and m <= 40 then mx = 4
+	if m >= 41 and m <= 50 then mx = 5
+	if m >= 51 and m <= 60 then mx = 6
+
+	return (h + mx) * y + d
+end function
+
+i = true
+while i == true
+	clear_screen
+	print("Code: " + mfa())
+	wait
+end while
