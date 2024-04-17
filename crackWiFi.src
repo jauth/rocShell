@@ -98,7 +98,7 @@ if result == 0 then
 	exit("Program ended")
 end if
 print("<color=grey>----------------</color>")
-wait 3
+wait 1
 // Launch the WEP cracker program called "aircrack"
 result = crypto.aircrack(current_path + "/file.cap")
 if not result then
