@@ -1,0 +1,133 @@
+// wifihack
+usage = "<b>Usage: " + program_path.split("/")[-1] + "</b>"
+if params.len != 0 then exit(usage)
+
+// load crypto library and hostComputer
+crypto = include_lib("/lib/crypto.so")
+if not crypto then crypto = include_lib(current_path + "/crypto.so")
+if not crypto then exit
+
+// Get network list
+get_netlist = function()
+	print("Getting wifi network list...")
+	info = "INDEX BSSID POWER ESSID\n----- ----- ----- -----"
+	networks = computer.wifi_networks(interfaces[interface])
+	networks_list = []
+	counter = 0
+	for net in networks
+		parsed_info = net.split(" ")
+		net_info = {"BSSID": parsed_info[0],"ACK": parsed_info[1].replace("%","").to_int,"ESSID": parsed_info[2]}
+		networks_list.push(net_info)
+		info = info + "\n" + counter + " " + net
+		counter = counter + 1
+	end for
+	info = info + "999 Exit"
+	print(format_columns(info))
+	return networks_list
+end function
+
+// Get computer and delete file.cap if exists
+computer = get_shell.host_computer
+file = computer.File(current_path + "/file.cap")
+if file then file.delete
+
+// Get interfaces and Selection menu for wifi interfaces
+interfaces = []
+interfaces_num = 0
+interfaces_info = computer.network_devices.split(" ")
+lines = "INDEX INTERFACE\n----- ---------"
+counter = 0
+for interface in interfaces_info
+	if interface.indexOf("wlan") != null then 
+		interfaces.push(interface)
+		lines = lines + "\n" + counter + " " + interface
+		counter = counter + 1
+	end if
+end for
+lines = lines + "\n999 Exit"
+print(format_columns(lines))
+interface = user_input("<color=green>Selection: </color>")
+interface = interface.val
+if interface == 999 then exit("Program ended")
+if interface < 0 or interface > interfaces.len-1 then exit("Error: Can't find interface, got " + str(interface.val))
+
+// Found interface
+print("<color=grey>----------------</color>\n<color=green>Interface: </color>" + interfaces[interface])
+
+// Toggle monitoring mode on
+result = crypto.airmon("start", interfaces[interface])
+if result == 0 then exit("Failed to start monitoring...\n<color=grey>----------------</color>")
+
+// Get user selection
+essid = null
+bssid = null
+networks = []
+selection = 0
+while selection <= 0 or selection > networks.len
+	num = 0
+	networks = get_netlist()
+	selection = user_input("<color=green>Please select a network: </color>")
+	selection = selection.val
+	if selection == 999 then
+		print("You decided to exit...")
+		crypto.airmon("stop", interfaces[interface])
+		if result == 1 then
+			print("Monitoring, stopped running...")
+		end if
+		exit("Program ended")
+	end if
+end while
+if selection < 0 or selection > networks.len-1 then exit("Error: Selection out of range.")
+print("<color=grey>----------------</color>")
+// Now run aireplay to get capture data
+network = networks[selection]
+packet_count = 300000 / network["ACK"]
+if packet_count < 7000 then packet_count = 7000
+while not packet_count or packet_count <= 0 and packet_count >= 300000
+	packet_count = user_input("How many ACKs do you need? ")
+	packet_count = packet_count.val
+end while
+bssid = network["BSSID"]
+essid = network["ESSID"]
+result = crypto.aireplay(bssid, essid, packet_count)
+if result == 0 then
+	print("Failed to get capture data from wifi network.")
+	result = crypto.airmon("stop", interfaces[interface])
+	if result == 0 then
+		print("Failed to stop monitoring...")
+	end if
+	exit("Program ended")
+end if
+print("<color=grey>----------------</color>")
+// Launch the WEP cracker program called "aircrack"
+result = crypto.aircrack(home_dir + "/file.cap")
+if not result then
+	print("Failed to crack password.")
+	result = crypto.airmon("stop", interfaces[interface])
+	if result == 0 then
+		print("Failed to stop monitoring...")
+	end if
+	exit("Program ended")
+end if
+password = result
+
+// Stop monitoring interface
+result = crypto.airmon("stop", interfaces[interface])
+if result == 0 then
+	print("Monitoring failed to stop, already stopped.")
+end if
+
+// Save password to file and connect.
+print("Wifi network cracked saving password...")
+filename = essid + ".txt"
+result = computer.touch(home_dir, filename)
+if not result then
+	print("Cannot create file: " + filename)
+	exit("Program ended")
+end if
+result = computer.File(filename)
+if result != null then
+	result.set_content("")
+	result.set_content("Network" + char(10) + "============" + char(10) + "ESSID: " + essid + char(10) + "BSSID: " + bssid + char(10) + "Password: " + password + char(10))
+end if
+print("<color=green>Network:</color> <color=orange>" + essid + "</color>\n<color=green>Password:</color> <color=orange>" + password + "</color>")
