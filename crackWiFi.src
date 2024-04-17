@@ -82,7 +82,6 @@ print("<color=grey>----------------</color>")
 // Now run aireplay to get capture data
 network = networks[selection]
 packet_count = 300000 / network["ACK"]
-if packet_count < 7000 then packet_count = 7000
 while not packet_count or packet_count <= 0 and packet_count >= 300000
 	packet_count = user_input("How many ACKs do you need? ")
 	packet_count = packet_count.val
@@ -99,8 +98,9 @@ if result == 0 then
 	exit("Program ended")
 end if
 print("<color=grey>----------------</color>")
+wait 3
 // Launch the WEP cracker program called "aircrack"
-result = crypto.aircrack(home_dir + "/file.cap")
+result = crypto.aircrack(current_path + "/file.cap")
 if not result then
 	print("Failed to crack password.")
 	result = crypto.airmon("stop", interfaces[interface])
