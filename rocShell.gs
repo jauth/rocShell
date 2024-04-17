@@ -1039,8 +1039,9 @@ commands["fs"]["run"] = function(args)
             colortag = "<color=red>"
             if subFile.has_permission("r") or subFile.has_permission("x") then colortag = "<color=yellow>"
             if subFile.has_permission("w") then colortag = "<color=green>"
-            print(char(8212) * num + char(187) + colortag + "[" + permission + "][" + owner + "][" + group + "][" + nameFile + "]</color>")
+            print(char(8212) * num + char(187) + colortag + "[" + permission + "][<color=grey>" + owner + "</color>][<color=grey>" + group + "</color>][" + nameFile + "]</color>")
         end for
+        print("\n")
         subFolders = toFolder.get_folders
         for subfolder in subFolders
             nameFolder = subfolder.name.replace(" ","_")
