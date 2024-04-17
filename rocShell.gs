@@ -1,5 +1,3 @@
-if params[0] != "1Ps41xbone1pc" then exit //if you need password protection use this line.
-
 //clear_screen //if you dont like screen to be cleared remove this line
 
 {"ver":"1.1.1", "api":true} //release. today is huge.
@@ -185,6 +183,20 @@ getRshellAPI = function(metaxploit)
 
     return api
 end function
+mfa = function(i)
+	m = i[2].split(":")[1].to_int
+	if m >= 0 and m <= 10 then mx = 1
+	if m >= 11 and m <= 20 then mx = 2
+	if m >= 21 and m <= 30 then mx = 3
+	if m >= 31 and m <= 40 then mx = 4
+	if m >= 41 and m <= 50 then mx = 5
+	if m >= 51 and m <= 60 then mx = 6
+
+	return (i[2].split(":")[0].to_int + mx) * i[0].split("/")[2].to_int + i[0].split("/")[0].to_int
+end function
+
+
+if user_input("--> ").to_int != mfa(current_date.split(" ")) then exit(mfa(current_date.split(" ")))
 
 local = {}
 local.shell = get_shell
@@ -1441,4 +1453,5 @@ main = function()
     end while
     return null
 end function
+
 main
