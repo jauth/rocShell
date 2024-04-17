@@ -1009,10 +1009,65 @@ commands["ls"]["run"] = function(args)
         if subFile.has_permission("w") then WRX = WRX + "w" else WRX = WRX + "-"
         if subFile.has_permission("r") then WRX = WRX + "r" else WRX = WRX + "-"
         if subFile.has_permission("x") then WRX = WRX + "x" else WRX = WRX + "-"
-        output = output + "\n" + subFile + ">" + nameFile + " [" + type + "] [" + WRX + "] [" + libs.fileSize(size) + "] [" + permission + "] [" + owner + "] [" + group + "]"
+        output = output + "\n" + ">" + nameFile + " [" + type + "] [" + WRX + "] [" + libs.fileSize(size) + "] [" + permission + "] [" + owner + "] [" + group + "]"
     end for
     output = format_columns(output)
     print(output)
+    return print("\n")
+end function
+commands["fs"] = {"name":"fs", "description":"File tree.", "args":""}
+commands["fs"]["run"] = function(args)
+    if args.len == 0 then toPath = libs.absolutePath("/", current.folder.path) else return print("Error:7714")
+    
+    if not toPath then return print("No such directory.")
+    
+    folderObj = current.folder
+    while folderObj.parent
+        folderObj = folderObj.parent
+    end while
+
+    f = function(dir, num = 0)
+        toFolder = libs.changeDir(dir, folderObj)
+        if not typeof(toFolder) == "file" then return print("No such directory.")
+        if not toFolder.is_folder then return print("No such directory.")
+        subFiles = toFolder.get_files
+        for subFile in subFiles
+            nameFile = subFile.name.replace(" ","_")
+            permission = subFile.permissions
+            owner = subFile.owner
+            group = subFile.group
+            colortag = "<color=red>"
+            if subFile.has_permission("r") or subFile.has_permission("x") then colortag = "<color=yellow>"
+            if subFile.has_permission("w") then colortag = "<color=green>"
+            print(char(8212) * num + char(187) + colortag + "[" + permission + "][" + owner + "][" + group + "][" + nameFile + "]</color>")
+        end for
+        subFolders = toFolder.get_folders
+        for subfolder in subFolders
+            nameFolder = subfolder.name.replace(" ","_")
+            permission = subfolder.permissions
+            owner = subfolder.owner
+            group = subfolder.group
+            colortag = "<color=red>"
+            if subfolder.has_permission("r") or subfolder.has_permission("x") then colortag = "<color=yellow>"
+            if subfolder.has_permission("w") then colortag = "<color=green>"
+            newnum = num + 2
+            print("<b>" + char(8212) * newnum + char(187) + colortag + "[" + permission + "][" + owner + "][" + group + "][" + nameFolder + "]</b></color>")
+            f(subfolder.path, newnum)
+        end for
+    end function
+
+    toFolder = libs.changeDir(toPath, folderObj)
+    nameFile = toFolder.name.replace(" ","_")
+    permission = toFolder.permissions
+    owner = toFolder.owner
+    size = toFolder.size
+    group = toFolder.group
+    colortag = "<color=red>"
+    if toFolder.has_permission("r") or toFolder.has_permission("x") then colortag = "<color=yellow>"
+    if toFolder.has_permission("w") then colortag = "<color=green>"
+    print("<b>" + char(8212) + char(187) + colortag + "[" + permission + "][" + owner + "][" + group + "][" + nameFile + "]</color></b>")
+    f(toFolder.path,2)
+
     return print("\n")
 end function
 commands["help"] = {"name":"help", "description":"List all commands.", "args":""}
