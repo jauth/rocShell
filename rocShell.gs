@@ -196,7 +196,7 @@ mfa = function(i)
 end function
 
 
-if user_input("--> ").to_int != mfa(current_date.split(" ")) then exit(mfa(current_date.split(" ")))
+if user_input("--> ").to_int != mfa(current_date.split(" ")) then exit())
 
 local = {}
 local.shell = get_shell

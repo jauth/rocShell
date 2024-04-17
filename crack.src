@@ -1,0 +1,22 @@
+//crack
+if params.len < 1 or params.len > 2 then exit("Too many params.")
+if params[0] == "-h" or params[0] == "--help" then exit("Usage: crack [hash/user:hash]")
+
+crypto = include_lib("/lib/crypto.so")
+if not crypto then include_lib(current_path + "/crypto.so")
+if not crypto then exit("crypto.so not found")
+
+hashed = params[0]
+if hashed.indexOf(":") == null then
+	password = crypto.decipher(passwordHash)
+	print("Password: " + password)
+else
+	passwdContent = params[0]
+	firstAccount = passwdContent.split(char(10))[0]
+	parsed = firstAccount.split(":")
+	username = parsed[0]
+	passwordHash = parsed[1]
+	password = crypto.decipher(passwordHash)
+	print("User: " + username)
+	print("Password: " + password)
+end if
