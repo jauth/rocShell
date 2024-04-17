@@ -777,7 +777,7 @@ commands = {}
 commands["rhack"] = {"name":"rhack", "description":"Remote attack.", "args":"[ip] [port] [(opt) injectArg]"}
 commands["rhack"]["run"] = function(args)
     if not current.isLocal then return print("metaxploit based commands only works when running from local.")
-    if args.len < 2 then return print("Usage: re [ip] [port] [(opt) injectArg]")
+    if args.len < 2 then return print("Usage: rhack [ip] [port] [(opt) injectArg]")
     targetIp = args[0]
     if not is_valid_ip(targetIp) then targetIp = nslookup(targetIp)
     if not is_valid_ip(targetIp) then return print("Invalid ip.")
@@ -831,7 +831,7 @@ end function
 commands["lhack"] = {"name":"lhack", "description":"Local attack.", "args":"[lib_path] [(opt) injectArg]"}
 commands["lhack"]["run"] = function(args)
     if not current.isLocal then return print("metaxploit based commands only works when running from local.")
-    if args.len < 1 then return print("Usage: lo [lib_path] [(opt) injectArg]")
+    if args.len < 1 then return print("Usage: lhack [lib_path] [(opt) injectArg]")
     targetPath = args[0]
     if args.len > 1 then injectArg = args[1] else injectArg = ""
     metaLib = metaxploit.load(targetPath)
