@@ -774,8 +774,8 @@ end if
 end function
 
 commands = {}
-commands["re"] = {"name":"re", "description":"Remote attack.", "args":"[ip] [port] [(opt) injectArg]"}
-commands["re"]["run"] = function(args)
+commands["rhack"] = {"name":"rhack", "description":"Remote attack.", "args":"[ip] [port] [(opt) injectArg]"}
+commands["rhack"]["run"] = function(args)
     if not current.isLocal then return print("metaxploit based commands only works when running from local.")
     if args.len < 2 then return print("Usage: re [ip] [port] [(opt) injectArg]")
     targetIp = args[0]
